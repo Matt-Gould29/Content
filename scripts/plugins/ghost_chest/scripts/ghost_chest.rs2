@@ -1,0 +1,11 @@
+// Two-state loc, following the coffin idiom in general_use/scripts/coffins.rs2.
+[oploc1,ghost_chest_closed]
+mes("The chest creaks open...");
+loc_change(ghost_chest_open, 500);
+
+[oploc1,ghost_chest_open]
+mes("You find nothing but dust.");
+
+[oploc2,ghost_chest_open]
+mes("You close the chest.");
+loc_change(ghost_chest_closed, 500);

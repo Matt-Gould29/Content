@@ -1,0 +1,19 @@
+// Ported from the 377 revision. Note the model naming rule: the config references the model
+// WITHOUT a shape suffix, but the model itself is registered as "<name>_8" because LocConfig
+// resolves `${model}${LocShapeSuffix[shape]}` and _8 is centrepiece_straight.
+[ghost_chest_closed]
+name=Ghostly chest
+desc=I wonder what's inside.
+model=plugin_ghost_chest_closed
+op1=Open
+forceapproach=north
+
+[ghost_chest_open]
+name=Ghostly chest
+desc=Perhaps I should search it.
+model=plugin_ghost_chest_open
+recol1s=10570
+recol1d=17921
+op1=Search
+op2=Close
+forceapproach=north
