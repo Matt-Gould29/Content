@@ -74,9 +74,12 @@ npx tsx tools/plugins/SyncPluginPacks.ts
 
 ## Getting assets in
 
-**Across Lost City revisions the `.ob2` and `.anim` formats are unchanged, so a port is a file
-copy.** Verified: model id 2373 is `inv_scimitar` on 289 and `obj_bronze_scimitar` on 377-wip and
-the two files are byte-identical; `models/_animset/anim_124.anim` matches across branches too.
+**Across Lost City revisions the `.ob2` and `.anim` file formats are unchanged, so an *unrigged*
+model ports as a plain file copy.** Verified: model id 2373 is `inv_scimitar` on 289 and
+`obj_bronze_scimitar` on 377-wip and the two files are byte-identical.
+
+**Rigged models do NOT port — see the next section before importing an npc, a worn item, or any
+animated model.**
 
 ```sh
 npx tsx tools/plugins/import/FromLostCityRev.ts \
@@ -85,6 +88,44 @@ npx tsx tools/plugins/import/FromLostCityRev.ts \
 ```
 
 That copies the blob out of the other branch and allocates it an id in the plugin's fragment.
+
+### Rigged models do not port across revisions
+
+A model carrying face labels (TSKIN) or vertex labels (VSKIN) is *rigged* - those labels bind its
+vertices to animation groups. **Jagex re-assigned rig labels between revisions**, so an imported
+rigged model animated by this revision's seqs deforms into mangled limbs.
+
+Measured on `npc_1279`, which exists in both revisions at identical length:
+
+| segment | bytes differing (289 vs 377) |
+| --- | --- |
+| TSKIN (face labels) | 843 / 859 |
+| VSKIN (vertex labels) | 425 / 500 |
+| geometry (vertexX/Y/Z) | 1 / 1130 |
+| face colours, indices, priority, alpha | 0 |
+
+Same mesh, same colours - different skeleton. And the relabelling is **per model, not a global
+permutation**: deriving a 377 -> 289 label map from 152 model pairs produced 8,962 conflicts (191
+even when restricted to human-skeleton models), so it cannot be remapped mechanically.
+
+`FromLostCityRev.ts` warns on import and `VerifyPluginPacks.ts` warns on every rigged model under
+`models/plugins/`. Both are warnings, not errors - a re-labelled model is perfectly valid.
+
+**To re-rig**, open the model in ob2blender or the Model & Anim Editor and re-assign VSKIN/TSKIN to
+this revision's scheme. For reference, 289's human skeleton uses labels `0-88` plus `255` for
+"unlabelled", sampled across its 351 human-rigged models; the dominant groups by vertex count are:
+
+| label | verts | | label | verts |
+| --- | --- | --- | --- | --- |
+| 16 | 5543 | | 7 | 761 |
+| 19 | 3464 | | 6 | 510 |
+| 8 | 1022 | | 22 | 501 |
+| 50 | 920 | | 21 | 484 |
+| 5 | 451 | | 29 | 430 |
+
+The practical shortcut: open a *native* 289 model of the same body plan (e.g. `npc_1279`, the
+Draugen - a single-model humanoid driven by `human_walk_*`) alongside the import, and copy its
+label assignment.
 
 For authoring or editing models, use the community tools rather than writing new ones:
 
@@ -106,6 +147,8 @@ or write a new importer that produces the same contract as `FromLostCityRev.ts` 
 - **`build.verify` must be `false`** in `engine/data/config/world.json`. `PackShared.ts:313` checks
   packed configs against hard-coded CRCs of the authentic 289 data, so adding *any* obj/npc/loc is
   otherwise a hard build failure. This is also why upstream's own packs are frozen.
+- **Rigged imports animate wrongly** until re-labelled - see above. Unrigged models (inventory
+  icons, static scenery) are unaffected.
 - **Centrepiece loc models use the bare name.** `LocConfig.ts` looks a centrepiece model up under
   the exact config name and the shape-suffix loop explicitly *skips* `_8`. Importing a `_8`-suffixed
   file from a later revision and keeping that name fails with `Failed to find suitable loc models` —
