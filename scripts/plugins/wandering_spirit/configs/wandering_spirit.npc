@@ -1,0 +1,16 @@
+// Uses npc_1279, a model already present in 289 (the Draugen). Native models are rigged for this
+// revision's skeleton, so human_walk_*/human_ready animate correctly - unlike a model imported
+// from another revision, whose TSKIN/VSKIN labels belong to that revision. Recoloured to be
+// visually distinct from viking_draugen, which uses the same model.
+[wandering_spirit]
+name=Wandering spirit
+desc=A restless spirit, bound to this place.
+model1=npc_1279
+walkanim=human_walk_f,human_walk_b,human_walk_l,human_walk_r
+readyanim=human_ready
+recol1s=10407
+recol1d=6550
+recol2s=10518
+recol2d=6032
+ambient=80
+vislevel=hide

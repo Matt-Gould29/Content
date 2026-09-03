@@ -1,0 +1,19 @@
+// TEMPORARY DIAGNOSTIC - delete once the chest is working.
+// Distinguishes "server never placed it" from "server placed it, client won't draw it".
+[debugproc,chestdiag]
+mes("adding ghost_chest_closed...");
+loc_add(coord, ghost_chest_closed, 0, centrepiece_straight, 500);
+if (loc_find(coord, ghost_chest_closed) = true) {
+    mes("SERVER: chest IS present at your tile");
+} else {
+    mes("SERVER: chest NOT found after add");
+}
+
+[debugproc,coffindiag]
+mes("adding coffin (control)...");
+loc_add(coord, coffin, 0, centrepiece_straight, 500);
+if (loc_find(coord, coffin) = true) {
+    mes("SERVER: coffin IS present at your tile");
+} else {
+    mes("SERVER: coffin NOT found after add");
+}
