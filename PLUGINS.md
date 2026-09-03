@@ -39,10 +39,18 @@ from 0. See `engine/tools/plugins/PluginIds.ts`.
 
 | type | plugin base | ceiling |
 | --- | --- | --- |
-| `obj` `loc` `model` `seq` `spotanim` | 20000 | 50000 |
+| `obj` `model` `seq` `spotanim` | 20000 | 50000 |
+| `loc` | **12000** | **16384** |
 | `npc` | **1792** | **2048** |
 
-**`npc` is the exception.** Npc type ids are packed into 11 bits by the info encoder
+**`loc` and `npc` have their own ceilings, and both fail silently.** `Loc` packs type, shape,
+angle and layer into one int and gives the type 14 bits (`src/engine/entity/Loc.ts`:
+`(type & 0x3fff) | ...`), and the getter masks again on the way out. A loc id above 16383 is
+therefore placed as `id & 0x3fff` - a completely different loc - with no error anywhere. It looks
+exactly like "the loc did not spawn": something appears at the tile, it is not yours, and
+`loc_find` never sees it. Id 20000 lands on 3616.
+
+Npc type ids are packed into 11 bits by the info encoder
 (`src/network/rsbuf/info.ts` → `pbit(11, ntype)`) and `pbit` masks *silently*, so an id of 2048 or
 above renders as a different npc with no error at all. The 50000 ceiling on the others comes from
 the packers' fixed `Packet.alloc(3)` index buffers at 2 bytes per entry.
