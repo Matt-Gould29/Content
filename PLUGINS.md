@@ -37,11 +37,13 @@ obj   20000 dragon_scimitar
 Ids come from a reserved range so they can never collide with upstream, which allocates densely
 from 0. See `engine/tools/plugins/PluginIds.ts`.
 
-| type | plugin base | ceiling |
-| --- | --- | --- |
-| `obj` `model` `seq` `spotanim` | 20000 | 50000 |
-| `loc` | **12000** | **16384** |
-| `npc` | **1792** | **2048** |
+| type | plugin base | ceiling | ceiling comes from |
+| --- | --- | --- | --- |
+| `obj` `model` `seq` `spotanim` | 20000 | 50000 | packer index buffer |
+| `varbit` | 4000 | 50000 | packer index buffer |
+| `loc` | **12000** | **16384** | `Loc` packs the type into 14 bits |
+| `varp` | **1200** | **2000** | the client stores values in a fixed `int[2000]` |
+| `npc` | **1792** | **2048** | 11-bit field in the info encoder |
 
 **`loc` and `npc` have their own ceilings, and both fail silently.** `Loc` packs type, shape,
 angle and layer into one int and gives the type 14 bits (`src/engine/entity/Loc.ts`:
@@ -88,15 +90,58 @@ Measured against the 377 branch, which is the likely next step:
 So an obj-shaped plugin survives a bump untouched, while `npc` and `loc` need re-numbering - `loc`
 being the one to watch, since upstream grows into a ceiling that does not.
 
+## Flags and hooks
+
+Two things a content plugin cannot express for itself are generated into
+`scripts/plugins/_generated/` by the sync. Both are derived - never edit them.
+
+**Flags.** RuneScript cannot read server config (only `map_members` and `map_live` are exposed as
+ops), so the enabled state is compiled in as a constant:
+
+```
+^plugin_ghost_chest_enabled = 1
+```
+
+A plugin is on unless listed under `disabled` in `engine/data/config/plugins.json`:
+
+```json
+{ "disabled": ["ghost_chest"] }
+```
+
+Toggling needs a repack, which is the same cost as editing any other content. The data stays in the
+cache either way - the flag gates behaviour, not existence.
+
+**Hooks.** RuneScript triggers are single-owner: there is exactly one `[login,_]` in the game, so
+plugins cannot each own it and none can react to login without editing core content. A plugin opts
+in by defining a proc:
+
+```
+[proc,ghost_chest_login]
+mes("...");
+```
+
+and the generated dispatcher fans core's single call out to whichever plugins implement it, guarded
+by the flag. Hooks available: `login`, `logout`. Add more in `tools/plugins/GenerateContent.ts`
+along with the matching core seam.
+
+> The login dispatcher is called **above** the tutorial branch, not at the end of the trigger.
+> That branch ends in `@start_tutorial`, which is a tail jump rather than a call, so anything after
+> it never runs for a new player - and new players are exactly who a login hook tends to care about.
+
 ## Commands
 
 ```sh
 cd engine
-npx tsx tools/plugins/SyncPluginPacks.ts            # regenerate content/pack from fragments
+npx tsx --test tools/plugins/*.test.ts              # tooling tests
+npx tsx tools/plugins/VerifySeams.ts                # seams still present in engine and content
+npx tsx tools/plugins/SyncPluginPacks.ts            # regenerate content/pack and _generated/
 npx tsx tools/plugins/SyncPluginPacks.ts --check    # exit 1 on drift, write nothing
 npx tsx tools/plugins/VerifyPluginPacks.ts          # invariants
 npm run build                                       # repack the cache
 ```
+
+All of this runs in CI (`.github/workflows/plugins.yml`) on every push and pull request, so a
+dropped seam or a drifted pack fails there rather than in game.
 
 After an upstream sync, a conflict in `content/pack/*.pack` is resolved by one deterministic
 command rather than by judgement:

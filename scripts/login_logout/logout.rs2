@@ -6,6 +6,7 @@
 ~macro_event_logout;
 ~castlewars_logout;
 %last_logout = map_clock;
+~plugin_logout; // @plugin-hook
 
 [if_button,logout:try_logout]
 if_close;

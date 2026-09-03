@@ -81,6 +81,10 @@ if(inzone(movecoord(^grandtree_jail_coord, 0, 0, -2), movecoord(^grandtree_jail_
 ~castlewars_login;
 ~update_all(inv_getobj(worn, ^wearpos_rhand));
 cam_reset;
+// dispatched here rather than at the end of the trigger: the tutorial branch below
+// ends in @start_tutorial, a tail jump, so nothing after it runs for new players.
+~plugin_login; // @plugin-hook
+
 if (%tutorial < ^tutorial_complete & ~in_tutorial_island(coord) = true) {
     @start_tutorial;
 }

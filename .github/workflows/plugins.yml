@@ -1,0 +1,80 @@
+name: Verify Plugins
+
+# Every plugin guard is advisory until something runs it. This job is what makes them
+# load-bearing: an upstream pull that drops a seam, drifts the packs, or grows content into a
+# reserved id range fails here instead of surfacing as a mystery in game.
+#
+# It clones the *fork's* engine, not LostCityRS/Engine-TS, because the tooling lives there.
+
+on:
+  pull_request:
+  push:
+    branches:
+    - '**'
+  workflow_dispatch:
+
+jobs:
+  plugins:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Clone Content
+      uses: actions/checkout@v6
+      with:
+        path: content
+        # the revision guard compares against the upstream branch, so it needs the history
+        fetch-depth: 0
+
+    - name: Clone Engine (fork)
+      uses: actions/checkout@v6
+      with:
+        repository: Matt-Gould29/Engine-TS
+        ref: '289-plugin'
+        path: engine
+
+    - name: Install Node.js
+      uses: actions/setup-node@v6
+      with:
+        node-version: 24
+        cache: npm
+        cache-dependency-path: engine/package-lock.json
+
+    - name: Install dependencies
+      working-directory: engine
+      run: npm ci
+
+    - name: Add the upstream remote
+      # headroom() reads `upstream/<revision>` to check that upstream has not grown into a
+      # plugin id range, which would make a sync delete upstream content
+      working-directory: content
+      run: |
+        git remote add upstream https://github.com/LostCityRS/Content || true
+        git fetch --no-tags --depth=1 upstream 289
+
+    - name: Configure the build
+      # adding any transmitted config trips the packer's CRC gate, which compares against
+      # hard-coded checksums of the authentic 289 data
+      working-directory: engine
+      run: |
+        mkdir -p data/config
+        printf '{\n  "build": { "verify": false, "srcDir": "../content" }\n}\n' > data/config/world.json
+
+    - name: Tooling tests
+      working-directory: engine
+      run: npx tsx --test tools/plugins/*.test.ts
+
+    - name: Seams present
+      working-directory: engine
+      run: npx tsx tools/plugins/VerifySeams.ts
+
+    - name: Packs in sync with the fragments
+      working-directory: engine
+      run: npx tsx tools/plugins/SyncPluginPacks.ts --check
+
+    - name: Plugin invariants
+      working-directory: engine
+      run: npx tsx tools/plugins/VerifyPluginPacks.ts
+
+    - name: Pack
+      working-directory: engine
+      run: npm run build
