@@ -1,0 +1,5 @@
+# <type> <id> <name> - ids come from tools/plugins/PluginIds.ts
+model 20000 plugin_dragon_scimitar
+model 20001 plugin_dragon_scimitar_manwear
+obj 20000 dragon_scimitar
+obj 20001 cert_dragon_scimitar

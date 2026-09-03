@@ -1,0 +1,3 @@
+// Attack 60 to wield, matching the other dragon melee weapons in levelrequire/scripts/tier60.rs2.
+// Monkey Madness gates access to Daga's shop in OSRS, not the wield itself, so no quest check here.
+[opheld2,dragon_scimitar] @levelrequire_attack_caps(60, last_slot);

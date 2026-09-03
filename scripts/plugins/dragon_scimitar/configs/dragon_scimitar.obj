@@ -1,0 +1,31 @@
+// Ported from the 377 revision. The dragon scimitar shipped with Monkey Madness in December 2004,
+// a month before this build's January 17, 2005 snapshot, but never made it into the 289 cache.
+// specwep/sa_energy are deliberately dropped: the special attack is a 2018 addition, and
+// player_special_attack.rs2 dispatches with a switch_obj that has no default, so a spec bar here
+// would appear and silently do nothing.
+[dragon_scimitar]
+name=Dragon scimitar
+desc=A vicious, curved sword.
+members=yes
+model=plugin_dragon_scimitar
+2dyof=6
+2dzoom=1640
+2dyan=12
+2dxan=456
+iop2=Wield
+wearpos=righthand
+manwear=plugin_dragon_scimitar_manwear,0
+womanwear=plugin_dragon_scimitar_manwear,6
+cost=100000
+category=weapon_slash
+weight=4lb
+param=stabattack,8
+param=slashattack,67
+param=crushattack,-2
+param=slashdefence,1
+param=strengthbonus,66
+param=slashattack_anim,human_sword_slash
+param=stabattack_anim,human_sword_stab
+param=defend_anim,human_sword_def
+param=slash_sound,hacksword_slash
+param=stab_sound,hacksword_stab
