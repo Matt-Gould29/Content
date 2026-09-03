@@ -1,0 +1,13 @@
+// Ported from the 377 revision. Deliberately minimal: this exists to prove the npc + model asset
+// path, not to be a working Barrows brother. op2=Attack is omitted because there are no combat
+// stats or scripts behind it, so it would only offer a broken interaction.
+[barrows_karil]
+name=Karil the Tainted
+desc=A vengeful spirit corrupted by dark magic.
+model1=plugin_barrows_karil
+walkanim=human_walk_f,human_walk_b,human_walk_l,human_walk_r
+readyanim=human_ready
+ambient=50
+contrast=50
+alwaysontop=yes
+vislevel=98
