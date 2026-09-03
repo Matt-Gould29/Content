@@ -14,17 +14,8 @@ model=plugin_dragon_scimitar
 2dxan=456
 iop2=Wield
 wearpos=righthand
-// 289 has exactly one worn scimitar model, shared by all seven tiers and recoloured per tier.
-// Reusing it means the weapon animates correctly, because native models are already rigged for
-// this revision's skeleton. Blade 61 (h0 s0 l61, grey) -> 933 (h0 s7 l37, dragon red) and grip
-// 9152 (h8 s7 l64, brown) -> 37 (h0 s0 l37, near-black), both sampled from the 377 worn model.
-// Neither source colour occurs in the imported inventory model, so the icon is unaffected.
-manwear=human_weapons_scimitar,0
-womanwear=human_weapons_scimitar,6
-recol1s=61
-recol1d=933
-recol2s=9152
-recol2d=37
+manwear=plugin_dragon_scimitar_manwear,0
+womanwear=plugin_dragon_scimitar_manwear,6
 cost=100000
 category=weapon_slash
 weight=4lb

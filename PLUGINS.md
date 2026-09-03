@@ -108,8 +108,14 @@ Same mesh, same colours - different skeleton. And the relabelling is **per model
 permutation**: deriving a 377 -> 289 label map from 152 model pairs produced 8,962 conflicts (191
 even when restricted to human-skeleton models), so it cannot be remapped mechanically.
 
+How badly this shows depends on how many label groups the model uses. A full humanoid deforms
+visibly - `barrows_karil` came through mangled. A model bound to only a few groups, such as a weapon
+held in one hand, often animates acceptably: the imported `plugin_dragon_scimitar_manwear` looks and
+animates correctly in game despite carrying 377 labels. So treat the warning as "check this in
+game", not "this is broken".
+
 `FromLostCityRev.ts` warns on import and `VerifyPluginPacks.ts` warns on every rigged model under
-`models/plugins/`. Both are warnings, not errors - a re-labelled model is perfectly valid.
+`models/plugins/`. Both are warnings, not errors - a rigged import that looks right is fine to keep.
 
 **To re-rig**, open the model in ob2blender or the Model & Anim Editor and re-assign VSKIN/TSKIN to
 this revision's scheme. For reference, 289's human skeleton uses labels `0-88` plus `255` for
