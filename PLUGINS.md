@@ -62,6 +62,32 @@ version-0 file. The cost is memory for default config objects, roughly 13-15 MB 
 automatic `cert_` link work). Asset names take a `plugin_` prefix, because upstream renames
 placeholder model names and `PackFile.register` silently rebinds a duplicate name to the new id.
 
+## Revision bumps
+
+The bases are only safe while they sit above everything upstream uses, because `SyncPluginPacks`
+rebuilds a pack by deleting every id at or above the base. A revision bump can quietly break that,
+so both tools check it against the upstream branch for the revision being built
+(`upstream/<engine.revision>`) and refuse rather than write:
+
+```
+REFUSING  loc: upstream reaches 5115 at upstream/289, at or above the plugin base 5000
+          syncing would delete upstream entries between 5000 and 5115
+```
+
+Measured against the 377 branch, which is the likely next step:
+
+| pack | base | 377 upstream max | 377 ceiling | verdict |
+| --- | --- | --- | --- | --- |
+| `obj` | 20000 | 7955 | 50000 | unaffected |
+| `model` | 20000 | 14926 | 50000 | unaffected |
+| `seq` | 20000 | 3996 | 50000 | unaffected |
+| `spotanim` | 20000 | 665 | 50000 | unaffected |
+| `npc` | 1792 | **3851** | 8192 | **must move** - but the field widens to 13 bits at 377, so there is far more room than the 256 slots here |
+| `loc` | 12000 | **14973** | 16384 | **must move**, and this is the tight one: `Loc` still masks to 14 bits at 377, so upstream's 14973 leaves roughly 1,400 ids |
+
+So an obj-shaped plugin survives a bump untouched, while `npc` and `loc` need re-numbering - `loc`
+being the one to watch, since upstream grows into a ceiling that does not.
+
 ## Commands
 
 ```sh
