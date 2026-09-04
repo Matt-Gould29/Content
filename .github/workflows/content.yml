@@ -21,8 +21,8 @@ jobs:
     - name: Clone Engine
       uses: actions/checkout@v6
       with:
-        repository: LostCityRS/Engine-TS
-        ref: '289'
+        repository: Matt-Gould29/Engine-TS # @plugin-hook
+        ref: '289-plugin' # @plugin-hook
         path: engine
 
     - name: Install Node.js
@@ -35,6 +35,15 @@ jobs:
     - name: Install dependencies
       working-directory: engine
       run: npm ci
+
+    # Plugins add configs, so the packer's CRC gate - which compares against checksums of the
+    # authentic 289 data - no longer matches by design. Verifying that the content still *packs*
+    # is the part that stays useful.
+    - name: Configure the build # @plugin-hook
+      working-directory: engine
+      run: |
+        mkdir -p data/config
+        printf '{\n  "build": { "verify": false, "srcDir": "../content" }\n}\n' > data/config/world.json
 
     - name: Pack
       working-directory: engine
