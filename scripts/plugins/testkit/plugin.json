@@ -1,0 +1,7 @@
+{
+    "name": "testkit",
+    "version": "1.0.0",
+    "description": "Teleport and state-reading commands for 04bot scenarios. Disable on a live world.",
+    "revision": 289,
+    "license": "MIT"
+}

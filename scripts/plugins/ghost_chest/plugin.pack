@@ -1,5 +1,5 @@
 # <type> <id> <name> - ids come from tools/plugins/PluginIds.ts
-model 20003 plugin_ghost_chest_closed
-model 20004 plugin_ghost_chest_open
-loc 12000 ghost_chest_closed
-loc 12001 ghost_chest_open
+model auto plugin_ghost_chest_closed
+model auto plugin_ghost_chest_open
+loc auto ghost_chest_closed
+loc auto ghost_chest_open

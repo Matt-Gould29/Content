@@ -1,0 +1,7 @@
+{
+    "name": "wandering_spirit",
+    "version": "1.0.0",
+    "description": "An npc built on a model already present in 289, so it animates correctly without re-rigging.",
+    "revision": 289,
+    "license": "MIT"
+}

@@ -1,0 +1,30 @@
+{
+    "version": 1,
+    "assigned": {
+        "model": {
+            "plugin_dragon_scimitar": 20000,
+            "plugin_dragon_scimitar_manwear": 20001,
+            "plugin_ghost_chest_closed": 20003,
+            "plugin_ghost_chest_open": 20004
+        },
+        "obj": {
+            "dragon_scimitar": 20000,
+            "cert_dragon_scimitar": 20001
+        },
+        "loc": {
+            "ghost_chest_closed": 12000,
+            "ghost_chest_open": 12001
+        },
+        "npc": {
+            "wandering_spirit": 1792
+        }
+    },
+    "tombstoned": {
+        "obj": {
+            "test_trophy": 20002
+        },
+        "npc": {
+            "test_minion": 1793
+        }
+    }
+}

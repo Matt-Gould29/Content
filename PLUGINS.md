@@ -23,16 +23,68 @@ content/
 The packer's folder validator requires `.rs2` in a directory named `scripts` (or whose parent is)
 and other configs in `configs`, which allows exactly the one extra nesting level used above.
 
+## plugin.json
+
+Every plugin declares itself. Missing or invalid manifests fail verification.
+
+```json
+{
+    "name": "dragon_scimitar",
+    "version": "1.0.0",
+    "description": "The dragon scimitar, absent from the 289 cache.",
+    "revision": 289,
+    "license": "MIT",
+    "requires": { "some_other_plugin": ">=1.2.0" },
+    "assets": [
+        { "from": "377-wip", "model": "models/obj/obj_dragon_scimitar.ob2", "as": "plugin_dragon_scimitar" }
+    ]
+}
+```
+
+`name` must match the directory, because it addresses the plugin in config and in the generated
+`^plugin_<name>_enabled` constant.
+
+**`revision` is the field that earns its keep.** Ids are per-revision - npc and loc both have to
+move between 289 and 377 - so a plugin built for one would not fail on the other, it would
+*half-work*, with content resolving to whatever now occupies those ids. Installing across
+revisions is refused rather than attempted.
+
+**`assets` makes a plugin a recipe rather than a copy.** Instead of shipping extracted `.ob2`
+files, a plugin says where they come from and the installing server imports them from its own
+content checkout:
+
+```sh
+npx tsx tools/plugins/import/FromLostCityRev.ts --plugin dragon_scimitar --from-manifest
+```
+
+Verification reports a declared asset that is missing, and tells you that command.
+
 ## Ids
 
 `content/pack/*.pack` is **derived — never hand-edit it.** Each plugin declares its ids in its own
 fragment, and `SyncPluginPacks.ts` regenerates the pack files from all fragments.
 
 ```
-# <type> <id> <name>
-model 20000 plugin_dragon_scimitar
-obj   20000 dragon_scimitar
+# <type> <id|auto> <name>
+model auto plugin_dragon_scimitar
+obj   auto dragon_scimitar
 ```
+
+**Use `auto`.** A fixed number is a fact about one server, not about the plugin, so a shared
+plugin that hardcodes ids collides with whatever else the installer has. With `auto` the
+installing server assigns from the reserved range and pins the choice in
+`content/pack/plugin-ids.lock.json`, so two plugins can never collide however they were authored.
+
+Three rules make that safe:
+
+- **An id never moves once assigned.** Ids leak into player saves - an obj in a bank, a varp
+  holding quest progress - so a reshuffle silently rewrites what people own.
+- **A removed symbol is tombstoned, not freed.** Reusing its id would alias a deleted item onto a
+  new one in existing saves.
+- **Running out is an error**, not an overflow. `npc` is 11 bits and masks silently, so the
+  alternative is content quietly appearing as a different npc.
+
+The lockfile is **not** derived. Losing it reshuffles every auto id, so commit it.
 
 Ids come from a reserved range so they can never collide with upstream, which allocates densely
 from 0. See `engine/tools/plugins/PluginIds.ts`.

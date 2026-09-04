@@ -1,0 +1,11 @@
+{
+    "name": "dragon_scimitar",
+    "version": "1.0.0",
+    "description": "The dragon scimitar, absent from the 289 cache despite shipping with Monkey Madness a month earlier.",
+    "revision": 289,
+    "license": "MIT",
+    "assets": [
+        { "from": "377-wip", "model": "models/obj/obj_dragon_scimitar.ob2", "as": "plugin_dragon_scimitar" },
+        { "from": "377-wip", "model": "models/obj/obj_dragon_scimitar_manwear.ob2", "as": "plugin_dragon_scimitar_manwear" }
+    ]
+}

@@ -1,0 +1,11 @@
+{
+    "name": "ghost_chest",
+    "version": "1.0.0",
+    "description": "A two-state searchable chest. Demonstrates locs, oploc scripts and centrepiece model naming.",
+    "revision": 289,
+    "license": "MIT",
+    "assets": [
+        { "from": "377-wip", "model": "models/loc/ahoy_chest_closed_8.ob2", "as": "plugin_ghost_chest_closed" },
+        { "from": "377-wip", "model": "models/loc/ahoy_chest_open_8.ob2", "as": "plugin_ghost_chest_open" }
+    ]
+}

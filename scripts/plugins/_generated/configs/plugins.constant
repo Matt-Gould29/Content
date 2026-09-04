@@ -3,4 +3,5 @@
 
 ^plugin_dragon_scimitar_enabled = 1
 ^plugin_ghost_chest_enabled = 1
+^plugin_testkit_enabled = 1
 ^plugin_wandering_spirit_enabled = 1

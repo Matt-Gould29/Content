@@ -1,0 +1,19 @@
+// Test-support commands for 04bot scenarios. Not game content - disable this plugin on a real
+// world via engine/data/config/plugins.json.
+
+[debugproc,tp](int $dx, int $dz, int $dy)
+// close first: p_finduid needs canAccess(), and an open modal makes the player busy.
+// The stock teleport cheats do the same thing for the same reason.
+if_close;
+if (p_finduid(uid) = true) {
+    p_teleport(movecoord(coord, $dx, $dy, $dz));
+    mes("tp ok");
+} else {
+    mes("tp: p_finduid failed");
+}
+
+[debugproc,qvar]
+mes("runemysteries=<tostring(%runemysteries)>");
+
+[debugproc,invcount](namedobj $obj)
+mes("count=<tostring(inv_total(inv, $obj))>");
